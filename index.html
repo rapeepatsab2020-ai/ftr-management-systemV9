@@ -41,6 +41,16 @@ label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute
 .msg{grid-column:1/-1;min-height:20px;font-size:13px}
 .rep p{margin:0 0 10px;max-width:70ch}
 .hm td{text-align:center;color:#fff;font-weight:600}
+body.lg{background:linear-gradient(160deg,#0f2a4a,#14304f 60%,#0c1d33);min-height:100vh}body.lg header{display:none}body.lg main{padding:24px 16px;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.lgc{width:100%;max-width:420px;background:#fff;color:#17212b;border-radius:28px;padding:32px 28px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.lgi{width:72px;height:72px;margin:0 auto 14px;border-radius:20px;background:linear-gradient(145deg,#3b7de0,#1f56b0);display:grid;place-items:center;box-shadow:0 10px 24px rgba(31,86,176,.4)}
+.lgc h2{font-size:21px;margin:0 0 6px;font-weight:600}.lgc p.s{color:#5b6b7a;margin:0 0 22px;font-size:14px}
+.lgc form{display:block;text-align:left}.lgc label{color:#3b4a58;font-weight:500;margin-bottom:14px}
+.fld{position:relative;display:flex;align-items:center}.fld>svg{position:absolute;left:14px;width:18px;height:18px;color:#6b7f95;pointer-events:none}
+.fld input{width:100%;padding:13px 44px;border-radius:14px;border:1px solid #cfd8e3;background:#f3f6fa;color:#17212b;font-size:15px}
+.fld input:focus{background:#fff;border-color:#2d6fd6;box-shadow:0 0 0 4px #cfe0fb;outline:none}
+.eye{position:absolute;right:8px;background:none;border:0;cursor:pointer;padding:6px;color:#6b7f95;display:flex}.eye svg{width:20px;height:20px}
+.lgb{width:100%;padding:14px;border:0;border-radius:16px;background:linear-gradient(90deg,#2f74dc,#2358b4);color:#fff;font:600 16px inherit;font-family:inherit;cursor:pointer;margin-top:6px;box-shadow:0 10px 22px rgba(35,88,180,.35)}
 </style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script></head><body>
 <header><h1>FTR MANAGEMENT SYSTEM<small>First Time Right · Quality Performance Monitoring</small></h1>
 <nav id="nav"></nav></header>
@@ -106,15 +116,22 @@ return filt()+`<div class="card rep"><h2>Executive Summary · ${S.days} วั�
 <p><b>Line:</b> ดีที่สุดคือ ${L[0].l} (${f1(L[0].f)}%) ส่วน ${L[L.length-1].l} ต้องเร่งปรับปรุง (${f1(L[L.length-1].f)}%)</p>
 <p><b>Defect หลัก:</b> ${D[0]?D[0].k+' คิดเป็น '+f1(D[0].n/tot*100)+'% ของ defect ทั้งหมด':'ไม่มี'}${D[1]?' รองลงมาคือ '+D[1].k+' ('+f1(D[1].n/tot*100)+'%)':''}</p>
 <p><b>Action Plan:</b> ค้างอยู่ ${open.length} รายการ${od.length?' · เลยกำหนด '+od.length+' รายการ: '+od.map(x=>x.title).join(', '):' · ไม่มีรายการเลยกำหนด'}</p></div>`}
-function render(){if(sb&&!S.user){$nav.innerHTML='';$v.innerHTML=login();return}if(sb&&!S.role){$v.innerHTML='<div class="card">กำลังโหลด...</div>';return}
-const tabs=TABS.filter(t=>(t[0]!='entry'||can('entry'))&&(t[0]!='usr'||can('usr')));$nav.innerHTML=tabs.map(([k,n])=>`<button data-t="${k}" aria-current="${S.tab==k}">${n}</button>`).join('')+(sb&&S.user?`<span style="align-self:center;margin-left:8px;font-size:13px;color:var(--mute)">${S.user.email} · <b>${S.role}</b> <button class="x" data-a="out" style="color:var(--ac)">ออกจากระบบ</button></span>`:'');
+function render(){document.body.classList.toggle('lg',!!(sb&&!S.user));if(sb&&!S.user){$nav.innerHTML='';$v.innerHTML=login();return}if(sb&&!S.role){$v.innerHTML='<div class="card">กำลังโหลด...</div>';return}
+const tabs=TABS.filter(t=>(t[0]!='entry'||can('entry'))&&(t[0]!='usr'||can('usr')));$nav.innerHTML=tabs.map(([k,n])=>`<button data-t="${k}" aria-current="${S.tab==k}">${n}</button>`).join('')+(sb&&S.user?`<span style="align-self:center;margin-left:8px;font-size:13px;color:var(--mute)">${uname(S.user.email)} · <b>${S.role}</b> <button class="x" data-a="out" style="color:var(--ac)">ออกจากระบบ</button></span>`:'');
 $v.innerHTML={dash,entry,def:defs,act:acts,rep,usr}[S.tab]()}
+const DOM='@ftr-system.com',toEmail=u=>u.trim().toLowerCase()+DOM,uname=e=>(e||'').replace(/@ftr-system\.com$/,''),okUser=u=>/^[A-Za-z0-9._-]{3,30}$/.test(u.trim());
 const ROLES=['viewer','operator','supervisor','admin'];
 const can=a=>({entry:['operator','supervisor','admin'],del:['supervisor','admin'],act:['supervisor','admin'],usr:['admin']}[a]||[]).includes(S.role);
 function entry(){let h=entry0();if(!can('del'))h=h.replace(/<button class="x" data-a="del"[^>]*>ลบ<\/button>/g,'');return h}
 function acts(){let h=acts0();if(!can('act'))h=h.replace(/<div class="card"><h2>เพิ่ม Action<\/h2>[\s\S]*?<\/form><\/div>/,'').replace(/<select data-a="st"/g,'<select disabled data-a="st"').replace(/<button class="x" data-a="dela"[^>]*>ลบ<\/button>/g,'');return h}
-function login(){return `<div class="card" style="max-width:380px;margin:40px auto"><h2>เข้าสู่ระบบ FTR</h2><form id="lf" style="grid-template-columns:1fr"><label>Email<input type="email" name="email" required autocomplete="username"></label><label>Password<input type="password" name="pw" minlength="6" required autocomplete="current-password"></label><div class="msg" style="color:var(--bd)">${S.msg}</div><button class="btn" type="submit">Sign in</button><button class="x" type="button" data-a="signup" style="color:var(--ac);justify-self:start;text-align:left">สมัครสมาชิกใหม่ (เริ่มต้นดูข้อมูลได้อย่างเดียว)</button></form></div>`}
-function usr(){return `<div class="card"><h2>จัดการผู้ใช้และสิทธิ์</h2><p style="color:var(--mute);margin:0 0 10px">ผู้ใช้ใหม่เริ่มที่ viewer กำหนดสิทธิ์ได้ที่นี่ (เปลี่ยนสิทธิ์ตัวเองไม่ได้)</p><table><tr><th>Email</th><th>Role</th></tr>${(S.users||[]).map(u=>`<tr><td>${u.email}</td><td><select data-a="role" data-id="${u.user_id}"${u.user_id==S.user.id?' disabled':''}>${opts(ROLES,u.role)}</select></td></tr>`).join('')}</table></div>
+function login(){const ic=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+return `<div class="lgc"><div class="lgi"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><rect x="9.5" y="10.5" width="5" height="4" rx="1"/><path d="M10.5 10.5V9a1.5 1.5 0 013 0v1.5"/></svg></div>
+<h2>เข้าสู่ระบบ FTR Management System</h2><p class="s">กรุณา Login ด้วยบัญชีของท่านก่อนเริ่มใช้งาน</p>
+<form id="lf"><label>ชื่อผู้ใช้<span class="fld">${ic('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>')}<input name="email" required autocomplete="username" placeholder="กรอกชื่อผู้ใช้"></span></label>
+<label>รหัสผ่าน<span class="fld">${ic('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>')}<input id="pw" type="password" name="pw" minlength="6" required autocomplete="current-password" placeholder="กรอกรหัสผ่าน"><button type="button" class="eye" data-a="eye" aria-label="แสดง/ซ่อนรหัสผ่าน">${ic('<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>')}</button></span></label>
+<div style="color:#c8372d;min-height:20px;font-size:13px;margin-bottom:8px">${S.msg}</div><button class="lgb" type="submit">เข้าสู่ระบบ →</button>
+<button class="x" type="button" data-a="signup" style="display:block;margin:14px auto 0;color:#2358b4;font-size:14px">สมัครใช้งานใหม่ (เริ่มต้นดูข้อมูลได้อย่างเดียว)</button></form></div>`}
+function usr(){return `<div class="card"><h2>จัดการผู้ใช้และสิทธิ์</h2><p style="color:var(--mute);margin:0 0 10px">ผู้ใช้ใหม่เริ่มที่ viewer กำหนดสิทธิ์ได้ที่นี่ (เปลี่ยนสิทธิ์ตัวเองไม่ได้)</p><table><tr><th>Username</th><th>Role</th></tr>${(S.users||[]).map(u=>`<tr><td>${uname(u.email)}</td><td><select data-a="role" data-id="${u.user_id}"${u.user_id==S.user.id?' disabled':''}>${opts(ROLES,u.role)}</select></td></tr>`).join('')}</table></div>
 <div class="card" style="margin-top:16px"><h2>สิทธิ์ของแต่ละ role</h2><p style="margin:0;max-width:70ch"><b>viewer</b> ดูทุกหน้า · <b>operator</b> + บันทึกข้อมูลการผลิต · <b>supervisor</b> + ลบข้อมูล และจัดการ Action Plan · <b>admin</b> + จัดการผู้ใช้</p></div>`}
 async function setUser(ses){S.user=ses?ses.user:null;S.role=null;S.msg='';
 if(S.user){const{data}=await sb.from('profiles').select('role').eq('user_id',S.user.id).maybeSingle();S.role=data?data.role:'viewer';S.tab='dash';
@@ -125,7 +142,8 @@ sb.auth.onAuthStateChange((_e,ses)=>{if((ses?ses.user.id:null)!==(S.user?S.user.
 const $nav=document.getElementById('nav'),$v=document.getElementById('v');
 document.addEventListener('click',async e=>{const t=e.target.closest('[data-t],[data-a]');if(!t)return;
 if(t.dataset.t){S.tab=t.dataset.t;S.msg='';render()}
-else if(t.dataset.a=='signup'){const f=Object.fromEntries(new FormData(document.getElementById('lf')));if(!f.email||!f.pw||f.pw.length<6){S.msg='กรอก Email และ Password (อย่างน้อย 6 ตัวอักษร) ก่อนสมัคร';render();return}const{data,error}=await sb.auth.signUp({email:f.email,password:f.pw});S.msg=error?'สมัครไม่สำเร็จ: '+error.message:(data.session?'':'สมัครแล้ว กรุณายืนยันอีเมล (ถ้าระบบเปิดไว้) แล้วเข้าสู่ระบบ');render()}
+else if(t.dataset.a=='signup'){const f=Object.fromEntries(new FormData(document.getElementById('lf')));if(!f.email||!okUser(f.email)||!f.pw||f.pw.length<6){S.msg='Username ใช้ได้เฉพาะ a-z 0-9 . _ - ยาว 3–30 ตัว และ Password อย่างน้อย 6 ตัวอักษร';render();return}const{data,error}=await sb.auth.signUp({email:toEmail(f.email),password:f.pw});S.msg=error?'สมัครไม่สำเร็จ: '+error.message:(data.session?'':'สมัครแล้ว ลองเข้าสู่ระบบ (ถ้าเข้าไม่ได้ แจ้งผู้ดูแลระบบ)');render()}
+else if(t.dataset.a=='eye'){const i=document.getElementById('pw');i.type=i.type=='password'?'text':'password'}
 else if(t.dataset.a=='out'){await sb.auth.signOut()}
 else if(t.dataset.a=='del'){if(sb)await mut(()=>sb.from('ftr_records').delete().eq('id',t.dataset.id));else{S.rows=S.rows.filter(r=>r.id!=t.dataset.id);save();render()}}
 else if(t.dataset.a=='dela'){if(sb)await mut(()=>sb.from('ftr_actions').delete().eq('id',t.dataset.id));else{S.acts=S.acts.filter(r=>r.id!=t.dataset.id);save();render()}}});
@@ -133,7 +151,7 @@ document.addEventListener('change',async e=>{const t=e.target;
 if(t.dataset.c){S[t.dataset.c]=t.dataset.c=='days'?+t.value:t.value;render()}
 else if(t.dataset.a=='role'){await mut(()=>sb.from('profiles').update({role:t.value}).eq('user_id',t.dataset.id))}else if(t.dataset.a=='st'){if(sb)await mut(()=>sb.from('ftr_actions').update({st:t.value}).eq('id',t.dataset.id));else{S.acts.find(x=>x.id==t.dataset.id).st=t.value;save();render()}}});
 document.addEventListener('submit',async e=>{e.preventDefault();const f=Object.fromEntries(new FormData(e.target));
-if(e.target.id=='lf'){const{error}=await sb.auth.signInWithPassword({email:f.email,password:f.pw});S.msg=error?'เข้าสู่ระบบไม่สำเร็จ: '+error.message:'';if(error)render();return}
+if(e.target.id=='lf'){const{error}=await sb.auth.signInWithPassword({email:toEmail(f.email),password:f.pw});S.msg=error?'เข้าสู่ระบบไม่สำเร็จ: '+(/invalid login/i.test(error.message)?'Username หรือ Password ไม่ถูกต้อง':error.message):'';if(error)render();return}
 if(e.target.id=='ef'){['produced','fp','ng','rw'].forEach(k=>f[k]=+f[k]);
 if(f.fp+f.ng+f.rw!==f.produced){S.msg=`ตัวเลขไม่ตรงกัน: First Pass + NG + Rework = ${f.fp+f.ng+f.rw} แต่ Produced = ${f.produced} กรุณาแก้ให้เท่ากัน`;render();return}
 if(sb){const er=await mut(()=>sb.from('ftr_records').insert(f));if(er){S.msg=er;render();return}}else S.rows.push({...f,id:'r'+Date.now()});S.msg=`บันทึกแล้ว · FTR ของรายการนี้ ${f1(ftr([f]))}%`}
