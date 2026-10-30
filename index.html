@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FTR Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f4;--sf:#fff;--ink:#17212b;--mute:#5b6b7a;--ln:#d5dce3;--ac:#0b5fa5;--ok:#1f8a4c;--wn:#b97d00;--bd:#c8372d;--r:6px;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#12181e;--sf:#1b232b;--ink:#e6ecf1;--mute:#94a3b0;--ln:#2d3944;--ac:#5aa9e6;--ok:#4cc07d;--wn:#e0b13a;--bd:#ef6b61;color-scheme:dark}}
+:root[data-theme=dark]{--bg:#12181e;--sf:#1b232b;--ink:#e6ecf1;--mute:#94a3b0;--ln:#2d3944;--ac:#5aa9e6;--ok:#4cc07d;--wn:#e0b13a;--bd:#ef6b61;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans Thai",system-ui,sans-serif}
+header{background:var(--sf);border-bottom:1px solid var(--ln);padding:14px 20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+h1{font:700 26px/1 "Barlow Condensed",sans-serif;margin:0;letter-spacing:.5px}
+h1 small{display:block;font:400 12px "IBM Plex Sans Thai";color:var(--mute);letter-spacing:0;margin-top:3px}
+nav{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+nav button{border:0;background:none;color:var(--mute);padding:8px 12px;border-radius:var(--r);font:500 14px inherit;font-family:inherit;cursor:pointer}
+nav button[aria-current=true]{background:var(--ac);color:#fff}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+main{max-width:1100px;margin:0 auto;padding:20px}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;color:var(--mute);font-size:13px}
+select,input{font:inherit;color:var(--ink);background:var(--sf);border:1px solid var(--ln);border-radius:var(--r);padding:7px 9px;min-width:0}
+.live{margin-left:auto;display:flex;gap:6px;align-items:center}.dot{width:9px;height:9px;border-radius:50%;background:var(--ok);animation:p 2s infinite}
+@keyframes p{50%{opacity:.35}}@media(prefers-reduced-motion:reduce){.dot{animation:none}}
+.board{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:16px}
+@media(max-width:760px){.board{grid-template-columns:1fr}}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:var(--r);padding:16px;overflow-x:auto}
+.card h2{margin:0 0 10px;font-size:15px;font-weight:600}
+.hero{border-left:8px solid var(--c);display:flex;flex-direction:column;justify-content:center}
+.big{font:700 88px/0.95 "Barlow Condensed",sans-serif;color:var(--c)}.big span{font-size:36px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:16px 0}
+.kpi b{display:block;font:700 30px/1.1 "Barlow Condensed",sans-serif}.kpi span{color:var(--mute);font-size:13px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:7px 8px;border-bottom:1px solid var(--ln);text-align:left;white-space:nowrap}th{color:var(--mute);font-weight:500}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.hb{display:flex;align-items:center;gap:8px}.hb i{display:block;height:10px;background:var(--ac);border-radius:2px;min-width:2px}
+.chip{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;color:#fff;background:var(--c)}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute)}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:var(--r);padding:9px 16px;font:500 14px inherit;font-family:inherit;cursor:pointer;align-self:end}
+.x{background:none;border:0;color:var(--bd);cursor:pointer;font-size:13px}
+.msg{grid-column:1/-1;min-height:20px;font-size:13px}
+.rep p{margin:0 0 10px;max-width:70ch}
+.hm td{text-align:center;color:#fff;font-weight:600}
+</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script></head><body>
+<header><h1>FTR MANAGEMENT SYSTEM<small>First Time Right · Quality Performance Monitoring</small></h1>
+<nav id="nav"></nav></header>
+<main id="v"></main>
+<script>
+const LINES=['Line A','Line B','Line C'],PARTS=['Door Panel','Bracket','Housing'],PROCS=['Press','Welding','Painting','Assembly'],DEFS=['Dimension','Scratch','Weld Porosity','Paint Run','Missing Part'];
+const TABS=[['dash','Dashboard'],['entry','บันทึกข้อมูล'],['def','Defect Analysis'],['act','Action Plan'],['rep','Executive Report']];
+const TARGET=95;const iso=d=>d.toISOString().slice(0,10);const today=iso(new Date());
+const ago=n=>{const d=new Date();d.setDate(d.getDate()-n);return iso(d)};
+let S={rows:[],acts:[],tab:'dash',line:'All',days:14,dim:'defect',msg:''};
+function seed(){let s=7;const r=()=>(s=s*16807%2147483647)/2147483647;const rows=[];
+for(let d=13;d>=0;d--)LINES.forEach((l,li)=>{for(let k=0;k<2;k++){const p=Math.round(180+r()*120),bad=0.02+r()*0.04+li*0.02,ng=Math.round(p*bad*0.35),rw=Math.round(p*bad*0.65);
+rows.push({id:'s'+d+l+k,date:ago(d),line:l,part:PARTS[Math.floor(r()*3)],proc:PROCS[Math.floor(r()*4)],produced:p,fp:p-ng-rw,ng,rw,defect:DEFS[Math.floor(r()*r()*5)]})}});
+S.rows=rows;S.acts=[{id:'a1',title:'ปรับ parameter เครื่อง Welding ลด porosity',line:'Line C',owner:'Maintenance',due:ago(-5),st:'In Progress'},{id:'a2',title:'เพิ่ม Poka-Yoke ตรวจ Missing Part',line:'Line B',owner:'Engineering',due:ago(2),st:'Open'}]}
+/* ===== ใส่ค่าจาก Supabase: Project Settings > API ===== */
+const SUPABASE_URL='https://imphjbjutfnanpoeuqly.supabase.co',SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImltcGhqYmp1dGZuYW5wb2V1cWx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMzNDQwMjEsImV4cCI6MjEwODkyMDAyMX0.3RcUbqEmqWMV19Hftpp37Oskv6ZfyVBpCX4VY6a6L60';
+const sb=(SUPABASE_URL&&window.supabase)?supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
+if(!sb){try{const j=localStorage.getItem('ftr1');if(j){const o=JSON.parse(j);S.rows=o.rows;S.acts=o.acts}else seed()}catch(e){seed()}}
+async function load(){const[a,b]=await Promise.all([sb.from('ftr_records').select('*').order('date'),sb.from('ftr_actions').select('*').order('due')]);if(a.error||b.error)S.msg='Supabase: '+(a.error||b.error).message;else{S.rows=a.data;S.acts=b.data}if(!document.activeElement.matches('input'))render()}
+async function mut(fn){const{error}=await fn();if(error)return'Supabase: '+error.message;await load();return null}
+const save=()=>{if(sb)return;try{localStorage.setItem('ftr1',JSON.stringify({rows:S.rows,acts:S.acts}))}catch(e){}};
+const sum=(a,k)=>a.reduce((x,r)=>x+(+r[k]||0),0),ftr=a=>{const p=sum(a,'produced');return p?sum(a,'fp')/p*100:0},f1=n=>n.toFixed(1),fm=n=>n.toLocaleString('en-US');
+const col=v=>v>=TARGET?'var(--ok)':v>=TARGET-3?'var(--wn)':'var(--bd)';
+const rows=()=>S.rows.filter(r=>r.date>=ago(S.days)&&(S.line=='All'||r.line==S.line));
+const grp=(a,k)=>{const m={};a.forEach(r=>(m[r[k]]=m[r[k]]||[]).push(r));return m};
+const opts=(a,v)=>a.map(x=>`<option${x==v?' selected':''}>${x}</option>`).join('');
+function filt(){return `<div class="bar"><label style="flex-direction:row;align-items:center;gap:6px">Line <select data-c="line"><option>All</option>${opts(LINES,S.line)}</select></label>
+<label style="flex-direction:row;align-items:center;gap:6px">ช่วงเวลา <select data-c="days">${[7,14,30].map(d=>`<option value="${d}"${d==S.days?' selected':''}>${d} วันล่าสุด</option>`).join('')}</select></label>
+<span class="live"><i class="dot"></i>Live · target FTR ${TARGET}%</span></div>`}
+function trend(a){const g=grp(a,'date'),ds=Object.keys(g).sort();if(ds.length<2)return'<p>ยังมีข้อมูลไม่พอ</p>';
+const W=640,H=220,pl=36,pb=24,v=ds.map(d=>ftr(g[d])),mn=Math.min(88,...v)-1,mx=100,X=i=>pl+i*(W-pl-10)/(ds.length-1),Y=y=>10+(mx-y)/(mx-mn)*(H-10-pb);
+let t=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="FTR trend"><line x1="${pl}" x2="${W-10}" y1="${Y(TARGET)}" y2="${Y(TARGET)}" stroke="var(--ok)" stroke-dasharray="5 4"/><text x="${pl+4}" y="${Y(TARGET)-4}" font-size="11" fill="var(--ok)">Target ${TARGET}%</text>`;
+t+=`<polyline fill="none" stroke="var(--ac)" stroke-width="2.5" points="${v.map((y,i)=>X(i)+','+Y(y)).join(' ')}"/>`;
+v.forEach((y,i)=>{t+=`<circle cx="${X(i)}" cy="${Y(y)}" r="3.5" fill="${col(y)}"><title>${ds[i]}: ${f1(y)}%</title></circle>`;if(i%Math.ceil(ds.length/7)==0)t+=`<text x="${X(i)}" y="${H-6}" font-size="10" text-anchor="middle" fill="var(--mute)">${ds[i].slice(5)}</text>`});
+[mn+1,(mn+mx)/2,mx].forEach(y=>t+=`<text x="2" y="${Y(y)+4}" font-size="10" fill="var(--mute)">${Math.round(y)}%</text>`);return t+'</svg>'}
+function dash(){const a=rows(),v=ftr(a),p=sum(a,'produced');
+const byL=grp(a,'line'),byP=grp(a,'proc');
+const heat=`<table class="hm"><tr><th></th>${PROCS.map(x=>`<th style="text-align:center">${x}</th>`).join('')}</tr>${LINES.map(l=>`<tr><th>${l}</th>${PROCS.map(x=>{const s=a.filter(r=>r.line==l&&r.proc==x);return s.length?`<td style="background:${col(ftr(s))}">${f1(ftr(s))}%</td>`:'<td style="background:var(--ln);color:var(--mute)">–</td>'}).join('')}</tr>`).join('')}</table>`;
+return filt()+`<div class="board"><div class="card hero" style="--c:${col(v)}"><h2>FTR (%) รวม</h2><div class="big">${f1(v)}<span>%</span></div><p style="margin:8px 0 0;color:var(--mute)">${v>=TARGET?'ถึงเป้าหมาย':'ต่ำกว่าเป้าหมาย '+f1(TARGET-v)+' จุด'}</p></div>
+<div class="card"><h2>FTR รายวัน</h2>${trend(a)}</div></div>
+<div class="kpis"><div class="card kpi"><span>Produced</span><b>${fm(p)}</b></div><div class="card kpi"><span>First Pass</span><b>${fm(sum(a,'fp'))}</b></div><div class="card kpi"><span>Rework / Repair</span><b>${fm(sum(a,'rw'))} <small>(${f1(p?sum(a,'rw')/p*100:0)}%)</small></b></div><div class="card kpi"><span>NG</span><b>${fm(sum(a,'ng'))} <small>(${f1(p?sum(a,'ng')/p*100:0)}%)</small></b></div></div>
+<div class="grid2"><div class="card"><h2>FTR ตาม Line</h2>${LINES.filter(l=>byL[l]).map(l=>`<div class="hb" style="margin-bottom:8px"><b style="width:60px">${l}</b><i style="width:${ftr(byL[l])*.6}%;background:${col(ftr(byL[l]))};height:14px"></i><span>${f1(ftr(byL[l]))}%</span></div>`).join('')||'ไม่มีข้อมูล'}</div>
+<div class="card"><h2>Heatmap: Line × Process</h2>${heat}</div></div>`}
+function entry(){const rs=[...S.rows].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,12);
+return `<div class="card"><h2>บันทึกผลการผลิตและตรวจสอบ</h2><form id="ef">
+<label>วันที่<input type="date" name="date" value="${today}" required></label><label>Line<select name="line">${opts(LINES)}</select></label><label>Part<select name="part">${opts(PARTS)}</select></label><label>Process<select name="proc">${opts(PROCS)}</select></label>
+<label>Produced<input type="number" name="produced" min="1" required></label><label>First Pass<input type="number" name="fp" min="0" required></label><label>NG<input type="number" name="ng" min="0" value="0" required></label><label>Rework / Repair<input type="number" name="rw" min="0" value="0" required></label>
+<label>Defect หลัก<select name="defect">${opts(DEFS)}</select></label><button class="btn" type="submit">Save record</button><div class="msg" style="color:${S.msg.startsWith('บันทึก')?'var(--ok)':'var(--bd)'}">${S.msg}</div></form></div>
+<div class="card" style="margin-top:16px"><h2>รายการล่าสุด</h2><table><tr><th>Date</th><th>Line</th><th>Part</th><th>Process</th><th class="n">Prod.</th><th class="n">FP</th><th class="n">NG</th><th class="n">RW</th><th class="n">FTR</th><th></th></tr>${rs.map(r=>`<tr><td>${r.date}</td><td>${r.line}</td><td>${r.part}</td><td>${r.proc}</td><td class="n">${r.produced}</td><td class="n">${r.fp}</td><td class="n">${r.ng}</td><td class="n">${r.rw}</td><td class="n" style="color:${col(ftr([r]))}">${f1(ftr([r]))}%</td><td><button class="x" data-a="del" data-id="${r.id}">ลบ</button></td></tr>`).join('')}</table></div>`}
+function defs(){const a=rows(),DM={defect:'defect',line:'line',part:'part',proc:'proc'};const g=grp(a,S.dim),ks=Object.keys(g);
+const d=ks.map(k=>({k,n:sum(g[k],'ng')+sum(g[k],'rw'),f:ftr(g[k]),p:sum(g[k],'produced')})).sort((x,y)=>y.n-x.n),tot=d.reduce((x,y)=>x+y.n,0)||1,mx=d[0]?d[0].n:1;let c=0;
+return filt()+`<div class="card"><h2>Pareto ของ Defect (NG + Rework)</h2><div class="bar">วิเคราะห์ตาม <select data-c="dim"><option value="defect"${S.dim=='defect'?' selected':''}>Defect type</option><option value="line"${S.dim=='line'?' selected':''}>Line</option><option value="part"${S.dim=='part'?' selected':''}>Part</option><option value="proc"${S.dim=='proc'?' selected':''}>Process</option></select></div>
+<table><tr><th>${S.dim}</th><th>Defect count</th><th class="n">Cum. %</th><th class="n">Produced</th><th class="n">FTR</th></tr>${d.map(x=>{c+=x.n;return `<tr><td>${x.k}</td><td><div class="hb"><i style="width:${x.n/mx*160}px"></i>${x.n}</div></td><td class="n">${f1(c/tot*100)}%</td><td class="n">${fm(x.p)}</td><td class="n" style="color:${col(x.f)}">${f1(x.f)}%</td></tr>`}).join('')}</table></div>`}
+function acts(){const od=a=>a.st!='Done'&&a.due<today;
+return `<div class="card"><h2>เพิ่ม Action</h2><form id="af"><label>หัวข้อ<input name="title" required></label><label>Line<select name="line">${opts(LINES)}</select></label><label>ผู้รับผิดชอบ<input name="owner" required></label><label>กำหนดเสร็จ<input type="date" name="due" value="${ago(-7)}" required></label><button class="btn" type="submit">Add action</button></form></div>
+<div class="card" style="margin-top:16px"><h2>Action Plan (${S.acts.length})</h2><table><tr><th>Action</th><th>Line</th><th>Owner</th><th>Due</th><th>Status</th><th></th></tr>${S.acts.map(a=>`<tr><td style="white-space:normal">${a.title}</td><td>${a.line}</td><td>${a.owner}</td><td>${a.due}${od(a)?' <span class="chip" style="--c:var(--bd)">เลยกำหนด</span>':''}</td><td><select data-a="st" data-id="${a.id}">${opts(['Open','In Progress','Done'],a.st)}</select></td><td><button class="x" data-a="dela" data-id="${a.id}">ลบ</button></td></tr>`).join('')}</table></div>`}
+function rep(){const a=rows(),v=ftr(a),g=grp(a,'line'),L=LINES.filter(l=>g[l]).map(l=>({l,f:ftr(g[l])})).sort((x,y)=>y.f-x.f),dg=grp(a,'defect'),D=Object.keys(dg).map(k=>({k,n:sum(dg[k],'ng')+sum(dg[k],'rw')})).sort((x,y)=>y.n-x.n),tot=D.reduce((x,y)=>x+y.n,0)||1;
+const open=S.acts.filter(x=>x.st!='Done'),od=open.filter(x=>x.due<today);
+if(!a.length)return filt()+'<div class="card">ยังไม่มีข้อมูลในช่วงที่เลือก</div>';
+return filt()+`<div class="card rep"><h2>Executive Summary · ${S.days} วันล่าสุด</h2>
+<p><b>ภาพรวม:</b> FTR ${f1(v)}% ${v>=TARGET?'ผ่านเป้าหมาย':'ต่ำกว่าเป้าหมาย'} ${TARGET}% จากการผลิต ${fm(sum(a,'produced'))} ชิ้น มี Rework ${fm(sum(a,'rw'))} และ NG ${fm(sum(a,'ng'))} ชิ้น</p>
+<p><b>Line:</b> ดีที่สุดคือ ${L[0].l} (${f1(L[0].f)}%) ส่วน ${L[L.length-1].l} ต้องเร่งปรับปรุง (${f1(L[L.length-1].f)}%)</p>
+<p><b>Defect หลัก:</b> ${D[0]?D[0].k+' คิดเป็น '+f1(D[0].n/tot*100)+'% ของ defect ทั้งหมด':'ไม่มี'}${D[1]?' รองลงมาคือ '+D[1].k+' ('+f1(D[1].n/tot*100)+'%)':''}</p>
+<p><b>Action Plan:</b> ค้างอยู่ ${open.length} รายการ${od.length?' · เลยกำหนด '+od.length+' รายการ: '+od.map(x=>x.title).join(', '):' · ไม่มีรายการเลยกำหนด'}</p></div>`}
+function render(){$nav.innerHTML=TABS.map(([k,n])=>`<button data-t="${k}" aria-current="${S.tab==k}">${n}</button>`).join('');
+$v.innerHTML={dash,entry,def:defs,act:acts,rep}[S.tab]()}
+const $nav=document.getElementById('nav'),$v=document.getElementById('v');
+document.addEventListener('click',async e=>{const t=e.target.closest('[data-t],[data-a]');if(!t)return;
+if(t.dataset.t){S.tab=t.dataset.t;S.msg='';render()}
+else if(t.dataset.a=='del'){if(sb)await mut(()=>sb.from('ftr_records').delete().eq('id',t.dataset.id));else{S.rows=S.rows.filter(r=>r.id!=t.dataset.id);save();render()}}
+else if(t.dataset.a=='dela'){if(sb)await mut(()=>sb.from('ftr_actions').delete().eq('id',t.dataset.id));else{S.acts=S.acts.filter(r=>r.id!=t.dataset.id);save();render()}}});
+document.addEventListener('change',async e=>{const t=e.target;
+if(t.dataset.c){S[t.dataset.c]=t.dataset.c=='days'?+t.value:t.value;render()}
+else if(t.dataset.a=='st'){if(sb)await mut(()=>sb.from('ftr_actions').update({st:t.value}).eq('id',t.dataset.id));else{S.acts.find(x=>x.id==t.dataset.id).st=t.value;save();render()}}});
+document.addEventListener('submit',async e=>{e.preventDefault();const f=Object.fromEntries(new FormData(e.target));
+if(e.target.id=='ef'){['produced','fp','ng','rw'].forEach(k=>f[k]=+f[k]);
+if(f.fp+f.ng+f.rw!==f.produced){S.msg=`ตัวเลขไม่ตรงกัน: First Pass + NG + Rework = ${f.fp+f.ng+f.rw} แต่ Produced = ${f.produced} กรุณาแก้ให้เท่ากัน`;render();return}
+if(sb){const er=await mut(()=>sb.from('ftr_records').insert(f));if(er){S.msg=er;render();return}}else S.rows.push({...f,id:'r'+Date.now()});S.msg=`บันทึกแล้ว · FTR ของรายการนี้ ${f1(ftr([f]))}%`}
+else{if(sb){const er=await mut(()=>sb.from('ftr_actions').insert({...f,st:'Open'}));if(er)S.msg=er}else S.acts.push({...f,id:'a'+Date.now(),st:'Open'})}
+save();render()});
+render();if(sb){load();sb.channel('ftr').on('postgres_changes',{event:'*',schema:'public'},load).subscribe()}setInterval(()=>{if(S.tab=='dash'&&!document.activeElement.matches('select'))render()},30000);
+</script></body></html>
